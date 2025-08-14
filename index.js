@@ -1,31 +1,24 @@
-const puppeteer = require('puppeteer');
+import puppeteer from "puppeteer";
 
-(async () => {
-  console.log("Starting cron job...");
+const LIGHT_PANDA_TOKEN = "cfad74152582eff2c5014dd475be46f0edf8deec661e4821833172b36914b09f";
+const URL_TO_OPEN = "https://deandev.com/redirector/redirector/?redirect=aHR0cHM6Ly90b29scy5hcGttb2R6LnNpdGUvbmV3cy8/d3BfYXV0b21hdGljPWNyb24=;";
 
-  try {
-    // Launch Puppeteer browser with Render.com compatible flags
-    const browser = await puppeteer.launch({
-      headless: true, // run in headless mode
-      args: ['--no-sandbox', '--disable-setuid-sandbox'], // required on Render and many cloud servers
-    });
+async function openLink() {
+  const browser = await puppeteer.connect({
+    browserWSEndpoint: `wss://cloud.lightpanda.io/ws?token=${LIGHT_PANDA_TOKEN}`,
+  });
 
-    console.log("Browser launched successfully");
+  const page = await browser.newPage();
+  await page.goto(URL_TO_OPEN, { waitUntil: "networkidle2" });
 
-    // Example: Open a page and take a screenshot
-    const page = await browser.newPage();
-    await page.goto('https://example.com'); // replace with your target URL
-    console.log("Page loaded");
+  console.log(`Opened ${URL_TO_OPEN} at ${new Date().toLocaleTimeString()}`);
 
-    // Take a screenshot (optional)
-    await page.screenshot({ path: 'example.png' });
-    console.log("Screenshot saved as example.png");
+  await page.close();
+  await browser.disconnect();
+}
 
-    // Close browser
-    await browser.close();
-    console.log("Browser closed, cron job finished successfully");
+// Run every 5 minutes
+setInterval(openLink, 5 * 60 * 1000);
 
-  } catch (err) {
-    console.error("Error running cron job:", err);
-  }
-})();
+// Run once immediately
+openLink();
