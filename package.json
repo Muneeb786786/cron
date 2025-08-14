@@ -1,11 +1,13 @@
 {
-  "name": "wp-cron-bot",
+  "name": "cron-job",
   "version": "1.0.0",
+  "description": "Cron job using Puppeteer on Render",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "postinstall": "npx puppeteer install"
   },
   "dependencies": {
-    "puppeteer": "^24.6.1"
+    "puppeteer-core": "^25.0.0"
   }
 }
