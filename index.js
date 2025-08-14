@@ -1,28 +1,46 @@
-const puppeteer = require('puppeteer');
+// index.js
+const puppeteer = require('puppeteer-core');
 
 (async () => {
   try {
+    console.log("Starting cron job...");
+
+    // Launch Puppeteer using Render's system Chromium
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath: '/usr/bin/chromium-browser',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const page = await browser.newPage();
 
-    // Set user agent to simulate real browser
+    // Set a realistic User-Agent
     await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36"
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36'
     );
 
+    // Optional: Set viewport size
+    await page.setViewport({ width: 1280, height: 800 });
+
     // Go to your cron URL
-    await page.goto('https://tools.apkmodz.site/news/?wp_automatic=cron', {
-      waitUntil: 'networkidle2',
-    });
+    const url = 'https://tools.apkmodz.site/news/?wp_automatic=cron';
+    console.log(`Visiting ${url}`);
+    await page.goto(url, { waitUntil: 'networkidle2' });
 
-    console.log('Cron URL visited successfully');
+    // Wait a few seconds for JS to run (e.g., cookie scripts)
+    await page.waitForTimeout(5000);
 
+    // Log page content (optional)
+    const content = await page.content();
+    console.log("Page loaded successfully.");
+    // console.log(content); // Uncomment if you want full HTML in logs
+
+    // Close browser
     await browser.close();
-  } catch (err) {
-    console.error('Error:', err);
+
+    console.log("Cron job finished successfully.");
+  } catch (error) {
+    console.error("Error running cron job:", error);
+    process.exit(1);
   }
 })();
