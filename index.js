@@ -4,17 +4,26 @@ const LIGHT_PANDA_TOKEN = "cfad74152582eff2c5014dd475be46f0edf8deec661e482183317
 const URL_TO_OPEN = "https://deandev.com/redirector/redirector/?redirect=aHR0cHM6Ly90b29scy5hcGttb2R6LnNpdGUvbmV3cy8/d3BfYXV0b21hdGljPWNyb24=;";
 
 async function openLink() {
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: `wss://cloud.lightpanda.io/ws?token=${LIGHT_PANDA_TOKEN}`,
-  });
+  try {
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: `wss://cloud.lightpanda.io/ws?token=${LIGHT_PANDA_TOKEN}`,
+    });
 
-  const page = await browser.newPage();
-  await page.goto(URL_TO_OPEN, { waitUntil: "networkidle2" });
+    const page = await browser.newPage();
 
-  console.log(`Opened ${URL_TO_OPEN} at ${new Date().toLocaleTimeString()}`);
+    // Ignore HTTPS errors for pages with invalid certificates
+    await page.goto(URL_TO_OPEN, {
+      waitUntil: "networkidle2",
+      ignoreHTTPSErrors: true, // <<< important
+    });
 
-  await page.close();
-  await browser.disconnect();
+    console.log(`Opened ${URL_TO_OPEN} at ${new Date().toLocaleTimeString()}`);
+
+    await page.close();
+    await browser.disconnect();
+  } catch (err) {
+    console.error("Error opening link:", err);
+  }
 }
 
 // Run every 5 minutes
