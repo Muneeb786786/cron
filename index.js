@@ -1,22 +1,31 @@
-const puppeteer = require('puppeteer'); // use full puppeteer
+const puppeteer = require('puppeteer');
 
 (async () => {
-  try {
-    console.log("Starting cron job...");
+  console.log("Starting cron job...");
 
+  try {
+    // Launch Puppeteer browser with Render.com compatible flags
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      headless: true, // run in headless mode
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // required on Render and many cloud servers
     });
 
-    const page = await browser.newPage();
-    await page.goto('https://tools.apkmodz.site/news/?wp_automatic=cron', { waitUntil: 'networkidle2' });
-    console.log("Page loaded successfully.");
+    console.log("Browser launched successfully");
 
+    // Example: Open a page and take a screenshot
+    const page = await browser.newPage();
+    await page.goto('https://example.com'); // replace with your target URL
+    console.log("Page loaded");
+
+    // Take a screenshot (optional)
+    await page.screenshot({ path: 'example.png' });
+    console.log("Screenshot saved as example.png");
+
+    // Close browser
     await browser.close();
-    console.log("Cron job finished successfully.");
-  } catch (error) {
-    console.error("Error running cron job:", error);
-    process.exit(1);
+    console.log("Browser closed, cron job finished successfully");
+
+  } catch (err) {
+    console.error("Error running cron job:", err);
   }
 })();
